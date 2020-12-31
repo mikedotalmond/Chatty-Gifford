@@ -23,11 +23,9 @@ class GiphySearch {
       return data.data;
     }
 
-    console.warn("response data not ok", data);
+    console.warn("Error fetching from Giphy API", data);
     return null;
   }
-
-
 }
 
 // export a single instance of GiphySearch

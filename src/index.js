@@ -16,6 +16,9 @@ const rndInt = n => (Math.random() * n) | 0;
 const genRandomId = () => rndInt(0xffffff7).toString(36);
 const randomSort = (a,b) => (Math.random() >= 0.5) ? -1 : 1;
 
+const filterUnique = (value, index, self) => self.indexOf(value) === index;
+
+// const stripUsernames = str => str.replace(/^@?(\w){1,15}$/gi, "");
 const stripUsernames = str => str.replace(/@[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*/gi, "");
 
 const afinnKeys = Object.keys(afinn);
@@ -61,16 +64,29 @@ const scoreSentiments = words => {
 
 const handleChatMessage = message => {
 
+    let original = message;
+
     message = message.toLowerCase();
     message = stripUsernames(message);
 
-    const doc = nlp(message);
+    let doc = nlp(message);
     doc.normalize();
     doc.parentheses().remove();
     doc.remove('(#Emoticon|#Emoji)');
 
-    const text = doc.text('clean');
-    const words = text.split(" ");
+    let text = doc.text('reduced');
+    let words = text.split(" ").filter(filterUnique);
+
+    if(words.length > 6) {
+        // lots of words? try to just pick some salient details
+        doc = nlp(words.join(" "));
+        let topics = doc.topics().out('array');
+        // let verbs = doc.verbs().out('array');
+        let nouns = doc.nouns().out('array');
+        words = topics.concat(nouns).filter(filterUnique);
+        text = words.join(" ");
+    }
+
     const score = scoreSentiments(words);
 
     // message has a negative/positive sentiment score?
@@ -79,6 +95,7 @@ const handleChatMessage = message => {
         const item = {
             id: genRandomId(),
             message: text,
+            originalMessage: original,
             score: score,
         };
 
@@ -171,7 +188,6 @@ async function fetchGIF(item) {
 
 function init() {
     chatClient.messageTarget = { onMessage: handleChatMessage };
-    window.handleChatMessage=handleChatMessage;
 
 }
 

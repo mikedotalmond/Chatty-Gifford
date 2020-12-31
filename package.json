@@ -1,5 +1,5 @@
 {
-  "name": "Sentimental",
+  "name": "SentimentalGiffery",
   "version": "1.0.0",
   "description": "Display GIFs using the Giphy API search API based on simple Twitch Chat sentiment analysis.",
   "private": true,
