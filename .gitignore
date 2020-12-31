@@ -1,1 +1,7 @@
-giphy-apikey.json
+/dist/main.js
+/dist/*.map
+/dist/main.js.LICENSE.txt
+/node_modules
+/package-lock.json
+src/config.js
+/.vscode

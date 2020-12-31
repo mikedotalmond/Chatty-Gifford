@@ -1,0 +1,24 @@
+{
+  "name": "Sentimental",
+  "version": "1.0.0",
+  "description": "Display GIFs using the Giphy API search API based on simple Twitch Chat sentiment analysis.",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode development --devtool source-map",
+    "build-prod": "webpack --mode production"
+  },
+  "author": "Mike Almond",
+  "license": "ISC",
+  "dependencies": {
+    "afinn-165": "^1.0.4",
+    "compromise": "^13.8.0",
+    "masonry-layout": "^4.2.2",
+    "timers-browserify": "^2.0.12",
+    "tmi.js": "^1.5.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.3.0",
+    "webpack-cli": "^4.1.0"
+  }
+}
