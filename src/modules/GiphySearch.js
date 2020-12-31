@@ -16,9 +16,12 @@ class GiphySearch {
 
     const request = `?api_key=${config.giphy.apiKey}&q=${query}&limit=${limit}&offset=${offset}&rating=${rating}&lang=${lang}`;
     const result = await fetch(`${config.giphy.searchEndpoint}${request}`);
-    const data = await result?.json();
 
-    if (data?.meta?.status == 200 || data?.meta?.msg == "OK") {
+    if(!result) return null;
+    const data = await result.json();
+
+    if(!data || !data.meta) return null;
+    if (data.meta.status == 200 || data.meta.msg == "OK") {
       if(config.debug) log("data ok");
       return data.data;
     }
