@@ -1,7 +1,6 @@
 /.vscode
 /node_modules
 /package-lock.json
-/dist/main.js
 /dist/config.js
 /dist/*.map
 /dist/main.js.LICENSE.txt
