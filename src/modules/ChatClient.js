@@ -3,18 +3,16 @@ import log from './log.js'
 
 import { client as TwitchClient } from "tmi.js"
 
-import config from '../config.js'
-
-
 /**
  * Entry point for creating a new tmi.client to listen for Twitch channel and chat events.
  */
 
 class ChatClient {
 
-    constructor() {
+    constructor(config, messageHandler) {
 
-        log("config", config);
+        this.config=config;
+        this.messageHandler = messageHandler;
 
         this.disabled = false;
         this.connected = false;
@@ -42,7 +40,7 @@ class ChatClient {
     onMessage(target, context, msg, self) {
 
         if (self) return;
-        if (config.debug) log("onMessage", target, context, msg, self);
+        if (this.config.debug) log("onMessage", target, context, msg, self);
 
         const message = msg.trim();
         const isCommand = message.charAt(0) === "!";
@@ -79,9 +77,9 @@ class ChatClient {
         // Handle different message types..
         switch (messageType) {
             case "chat":
-                if(config.debug) log("processMessage - chat:", message);
-                if(this.messageTarget != null && typeof this.messageTarget.onMessage == "function") {
-                    this.messageTarget.onMessage(message);
+                if(this.config.debug) log("processMessage - chat:", message);
+                if(this.messageHandler != null && typeof this.messageHandler == "function") {
+                    this.messageHandler(message);
                 }
                 break;
             case "whisper":
@@ -94,5 +92,4 @@ class ChatClient {
     }
 }
 
-// export a single instance of ChatClient
-export const chatClient = new ChatClient();
+export default ChatClient;

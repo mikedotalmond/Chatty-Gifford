@@ -1,28 +1,30 @@
-
 import log from './log.js'
-import config from '../config.js'
+
+const searchEndpoint = "https://api.giphy.com/v1/gifs/search";
 
 /**
  * Basic GiphySearch API access
  */
 class GiphySearch {
 
-  constructor() {
-
+  constructor(config) {
+    this.config = config;
   }
 
   async query(query, limit = 25, offset = 0, rating = "g", lang = "en") {
-    if(config.debug) console.log("querying giphy for:", query);
+    const c = this.config;
 
-    const request = `?api_key=${config.giphy.apiKey}&q=${query}&limit=${limit}&offset=${offset}&rating=${rating}&lang=${lang}`;
-    const result = await fetch(`${config.giphy.searchEndpoint}${request}`);
+    if(c.debug) console.log("querying giphy for:", query);
+
+    const request = `?api_key=${c.giphy_apiKey}&q=${query}&limit=${limit}&offset=${offset}&rating=${rating}&lang=${lang}`;
+    const result = await fetch(`${searchEndpoint}${request}`);
 
     if(!result) return null;
     const data = await result.json();
 
     if(!data || !data.meta) return null;
     if (data.meta.status == 200 || data.meta.msg == "OK") {
-      if(config.debug) log("data ok");
+      if(c.debug) log("data ok");
       return data.data;
     }
 
@@ -31,6 +33,5 @@ class GiphySearch {
   }
 }
 
-// export a single instance of GiphySearch
-export const giphySearch = new GiphySearch();
+export default GiphySearch;
 

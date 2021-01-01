@@ -1,7 +1,7 @@
 {
-  "name": "SentimentalGiffery",
+  "name": "giffing-wall-sentimental",
   "version": "1.0.0",
-  "description": "Display GIFs using the Giphy API search API based on simple Twitch Chat sentiment analysis.",
+  "description": "Display a wall of GIFs driven by a simple Twitch live chat sentiment analysis and the Giphy search API.",
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
