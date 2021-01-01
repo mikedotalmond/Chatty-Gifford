@@ -4,7 +4,7 @@
  * 
  * Make a copy of this file and rename it to "config.js",
  * 
- * ... then replace the giphy.apiKey value with your own giphy API key
+ * ... then replace the giphy.apiKey value with your own giphy API key 
  * - https://support.giphy.com/hc/en-us/articles/360020283431-Request-A-GIPHY-API-Key
  * - https://developers.giphy.com/
  * 
@@ -19,13 +19,19 @@ window.sentimentWall = {
 
     // the twitch channel to observe...
     // can be anyone, twitch chats are all public and require no authentication to read from.
-    channel: 'mikedotalmond', // mikedotalmond, 1030jh, limmy, zafarcakes, etc...
+    channel: 'mikedotalmond', // 1030jh, limmy, zafarcakes, etc...
 
-    // number of gif items to keep in the display at once. will need to change if the grid size is altered.
+    // number of gif items to keep in the display at once. will need to change if the grid size is altered in the CSS.
     bufferSize: 25,
 
-    // giphy specific 
-    giphy_rating: "g", // keeping results clean, or not, see: https://developers.giphy.com/docs/optional-settings#rating
-    giphy_apiKey: "your-giphy-apikey", // put your giphy api key here - but DON'T then commit this file to version control
+
+    // giphy specifics
+
+    // 'g', 'pg13', or 'r' - keeping results clean, or not. pg13 seems to be generally ok for Twitch's ToS.
+    // see: https://developers.giphy.com/docs/optional-settings#rating
+    giphy_rating: "g",
+
+    // put your giphy api key here - but DON'T then commit this file to version control
+    giphy_apiKey: "your-giphy-apikey", 
   }
 };

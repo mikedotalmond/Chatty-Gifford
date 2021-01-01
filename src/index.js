@@ -1,7 +1,10 @@
 /**
- *
+ * ╰(*°▽°*)╯ Giffing Wall Sentimental ╰(*°▽°*)╯
  * 
- * 
+ * Display a wall of GIFs driven by a simple Twitch
+ * live chat sentiment analysis and the Giphy search API.
+ *  
+ * Use as a browser source in OBS / your streaming tool of choice.
  **/
 
 import afinn from 'afinn-165';
