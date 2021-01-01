@@ -4,3 +4,4 @@
 /dist/config.js
 /dist/*.map
 /dist/main.js.LICENSE.txt
+/dist/*.bat
