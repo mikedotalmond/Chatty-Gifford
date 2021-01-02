@@ -14,8 +14,10 @@ div.content {
     position: relative;
 }
 
-
-/* 20% for a grid of 5 items wide **/
+/* 
+ * 20% for a grid of 5 items wide 
+ * change this width and the width of the div.item below to change the grid layout
+ **/
 .grid-sizer { width: 20%; }
 
 div.content > div.item { 
