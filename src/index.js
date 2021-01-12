@@ -18,23 +18,24 @@ import log from './modules/log.js';
 import ChatClient from "./modules/ChatClient.js";
 import GiphySearch from "./modules/GiphySearch.js";
 
-const rndInt = n => (Math.random() * n) | 0;
-const genRandomId = () => rndInt(0xffffff7).toString(36);
-const randomSort = (a,b) => (Math.random() >= 0.5) ? -1 : 1;
-const filterUnique = (value, index, self) => self.indexOf(value) === index;
-const stripUsernames = str => str.replace(/@[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*/gi, "");
-
 const config = window.sentimentWall.config;
 const afinnKeys = Object.keys(afinn);
-
 const gifContainer = document.getElementById("gif-container");
+
+const rndInt = n => (Math.random() * n) | 0;
+const genRandomId = () => rndInt(0xffffff7).toString(36);
+const randomSort = (a, b) => (Math.random() >= 0.5) ? -1 : 1;
+const filterUnique = (value, index, self) => self.indexOf(value) === index;
+const stripUsernames = str => str.replace(/@[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*/gi, "");
+const getColumnWidth = () => `${100 / config.displayColumns}%`;
 
 /**
  * using masonry to lay out the grid of items
  */
-const msnry = new Masonry( gifContainer, {
+const msnry = new Masonry(gifContainer, {
     itemSelector: '.item',
     columnWidth: '.grid-sizer',
+    transitionDuration:100
 });
 
 
@@ -45,17 +46,48 @@ let itemPool = [];
 /**
  * create dom elements to display a new gif in the grid
  */
-const createImageItem = (id, src) => {
+const createImageItem = (data) => {
+
+    const {id, url} = data;
+    const aspect = parseFloat(data.width) / parseFloat(data.height);
 
     const wrap = document.createElement('div');
     wrap.classList.add("item");
+    wrap.style.width = getColumnWidth();
     wrap.id = id;
 
     const img = new Image();
-    img.src = src;
+    img.src = url;
+
+    if(config.displayColumns == 1){
+        // centre output if only 1 column
+        img.style.margin = "0 auto";
+
+        // and set height to fill the available area, 
+        const newHeight = window.innerHeight / config.displayCount;
+        const newWidth = newHeight * aspect;
+        img.style.height = `${window.innerHeight / config.displayCount}px`;
+
+        // and maintain aspect ratio if increasing height
+        img.style.setProperty("min-width", `${newWidth}px`);
+        // then - images wider than the window will be centrally cropped, narrower ones will centre in the available space
+        img.style.margin = (newWidth < window.innerWidth) ?  "0 auto" : `0 ${(window.innerWidth-newWidth) / 2}px`;
+    }
+
     wrap.appendChild(img);
 
     return wrap;
+}
+
+
+const matchSentiments = words => {
+    const out = [];
+    afinnKeys.forEach((key, j) => {
+        if (words.indexOf(key) > -1) {
+            out.push(key);
+        }
+    });
+    return out;
 }
 
 /**
@@ -84,7 +116,7 @@ const scoreSentiments = words => {
  * Called from the ChatClient, receives all regular Twitch chat messages
  * @param {*} message 
  */
-const handleChatMessage = message => {
+const handleChatMessage = (message) => {
 
     const original = message;
 
@@ -99,16 +131,22 @@ const handleChatMessage = message => {
     let text = doc.text('reduced');
     let words = text.split(" ").filter(filterUnique);
 
-    if(words.length > 6) {
+    if (words.length > 6) {
         // lots of words? try to just pick some salient details so that the search passed to the giphy api is a bit more focussed.
         doc = nlp(words.join(" "));
-        let topics = doc.topics().out('array');
-        // let verbs = doc.verbs().out('array');
-        let nouns = doc.nouns().out('array');
-        words = topics.concat(nouns).filter(filterUnique);
+        const topics = doc.topics().out('array');
+        const verbs = doc.verbs().out('array');
+        const nouns = doc.nouns().out('array');
+        const sentiments = matchSentiments(words);
+        words = sentiments.concat(topics,nouns,verbs).filter(filterUnique);
+        if(words.length > 6) {
+            words.sort(randomSort); // shuffle for a bit of variety
+            words.length = 6; // then truncate
+        }
+
         text = words.join(" ");
     }
-
+    log(text);
     const score = scoreSentiments(words);
 
     // message has a negative/positive sentiment score?
@@ -129,7 +167,7 @@ const handleChatMessage = message => {
 
 function gotGIF(data) {
 
-    if(config.debug) log("gotGIF", data);
+    if (config.debug) log("gotGIF", data);
 
     if (!data.ok) {
         log("removing failed item", data.id);
@@ -138,13 +176,13 @@ function gotGIF(data) {
         return;
     }
 
-    const img = createImageItem(data.id, data.url);
+    const img = createImageItem(data);
     img.style.opacity = 0;
 
     // gifContainer.appendChild(img);
     gifContainer.insertBefore(img, gifContainer.firstChild);
 
-    setTimeout(()=>{
+    setTimeout(() => {
         msnry.prepended(img);
         msnry.layout();
         img.style.opacity = 1;
@@ -161,10 +199,10 @@ async function fetchGIF(item) {
     let query = item.message;
     let id = item.id;
 
-    const gData = await giphySearch.query(query, (config.bufferSize >> 1) + 1, 0, config.giphy_rating);
+    const gData = await giphySearch.query(query, Math.max(1, config.searchSize), 0, config.giphy_rating);
     if (!gData) return { ok: false, id: id };
-    if(config.debug) log("giphySearch response", gData);
-    
+    if (config.debug) log("giphySearch response", gData);
+
     gData.sort(randomSort); // randomise order of results 
 
     let imageData = null;
@@ -172,29 +210,29 @@ async function fetchGIF(item) {
     gData.every(data => {
         const isUnique = itemPool.every(item => item.originalURL !== data.images.original.url);
         // if image does not exist in current items, keep it
-        if(isUnique) {
+        if (isUnique) {
             imageData = data.images.original;
             return false;
         }
         return true; // keep checking
     });
 
-    if(imageData === null){
+    if (imageData === null) {
         log("item already exists, no new gifs to show for this query.");
         return { ok: false, id: id };
     }
-    
+
     // Seems that Giphy no longer just returns a gif url, it's an html page with a gif/webm/mp4 embed. 
     // We only want the source gif url...
     const url = imageData.url;
     let assetId = url.substr(0, url.indexOf("/giphy.gif?"));
     assetId = assetId.substring(assetId.lastIndexOf("/") + 1);
     const gifURL = `https://i.giphy.com/media/${assetId}/giphy.gif`
-    
+
     item.originalURL = url;
     itemPool.push(item);
 
-    if (itemPool.length > config.bufferSize) {
+    if (itemPool.length > config.displayCount) {
         // too many? removed oldest item.
         const removed = itemPool.shift();
         const el = document.getElementById(removed.id);
@@ -217,13 +255,22 @@ async function fetchGIF(item) {
  * construct and configure
  */
 function init() {
-   
+
     // override config values with querysting parameters if present
     const urlParams = new URLSearchParams(window.location.search);
-    if(urlParams.has("channel")) config.channel = urlParams.get('channel');
-    if(urlParams.has("bufferSize")) config.bufferSize = urlParams.get('bufferSize');
-    if(urlParams.has("giphy_rating")) config.giphy_rating = urlParams.get('giphy_rating');
-    if(urlParams.has("giphy_apiKey")) config.giphy_apiKey = urlParams.get('giphy_apiKey');
+    if (urlParams.has("channel")) config.channel = urlParams.get('channel');
+
+    if (urlParams.has("displayColumns")) config.displayColumns = parseInt(urlParams.get('displayColumns'), 10);
+    if (urlParams.has("displayCount")) config.displayCount = parseInt(urlParams.get('displayCount'), 10);
+    if (urlParams.has("searchSize")) config.searchSize = parseInt(urlParams.get('searchSize'), 10);
+
+    if (urlParams.has("giphy_rating")) config.giphy_rating = urlParams.get('giphy_rating');
+    if (urlParams.has("giphy_apiKey")) config.giphy_apiKey = urlParams.get('giphy_apiKey');
+
+    // set column width
+    document.querySelector('.grid-sizer').style.width = getColumnWidth();
+
+    window.handleChatMessage = handleChatMessage; // to test
 
     chatClient = new ChatClient(config, handleChatMessage);
     giphySearch = new GiphySearch(config)

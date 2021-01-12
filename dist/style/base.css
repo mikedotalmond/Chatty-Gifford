@@ -4,7 +4,7 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background-color: #171414;
+    background-color: transparent;
 }
 
 div.content {
@@ -15,8 +15,9 @@ div.content {
 }
 
 /* 
- * 20% for a grid of 5 items wide 
- * change this width and the width of the div.item below to change the grid layout
+ * default grid size is 20% for 5 columns. 
+ * you don't need to change these to alter the layout though,
+ * widths will be set automatically if the displayColumns config value is changed
  **/
 .grid-sizer { width: 20%; }
 
@@ -30,6 +31,7 @@ div.content > div.item {
 div.content > div.item > img {
     display:block;
     margin: 0px 0px 0px 0px;
+    /* margin: 0 auto; */
     padding: 0px;
     max-width:100%;
 }

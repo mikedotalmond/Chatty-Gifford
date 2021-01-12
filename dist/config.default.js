@@ -18,9 +18,17 @@ window.sentimentWall = {
     // can be anyone, twitch chats are all public and require no authentication to read from.
     channel: 'mikedotalmond', // 1030jh, coolcaits, limmy, pinkhexagon, sheila, toastie, zafarcakes, etc...
 
-    // Number of gif items to keep in the display at once. 
-    // Will need to change if the grid size is altered in the CSS.
-    bufferSize: 25,
+    // number of GIFs to display in each horizontal row
+    displayColumns: 5,
+    // total number of GIFs to show in the display at once. You probably want to have just enough to fill the size of area you want to show.
+    displayCount: 25,
+    // NOTE: setting each of the above to 1 will cause a single image to be displayed at a time. 
+    // That image will fill the height of the window/container it's loaded into and be centred horizontally in that space
+    // (while maintaining the original aspect ratio)
+
+    // number of results to request for each search query - a random choice is picked when multiple results are returned
+    // can give more varied results for similar/repeated search terms
+    searchSize: 16,
 
     // giphy search settings
     // 'g', 'pg13', or 'r' - keeping results clean, or not. pg13 *seems* to be generally ok for the Twitch ToS.
