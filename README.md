@@ -2,7 +2,9 @@
 
 Display a wall of GIFs driven by a simple Twitch live chat sentiment analysis and the Giphy search API.
 
-[Example](https://www.twitch.tv/videos/856384544)
+[Stream Example](https://www.twitch.tv/videos/856384544)
+
+![example](https://mikedotalmond.co.uk/lab/giffingsentimental/gifwall.jpg)
 
 
 ### Getting started
