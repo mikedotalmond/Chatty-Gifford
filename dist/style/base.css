@@ -4,7 +4,7 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background-color: transparent;
+    background-color: #00000000;
 }
 
 div.content {
@@ -12,6 +12,10 @@ div.content {
     width: 100%;
     height: 100%;
     position: relative;
+    background-repeat: repeat;
+    background-position: 50%;
+    background-size: cover;
+    background-image: unset;
 }
 
 /* 
@@ -31,7 +35,6 @@ div.content > div.item {
 div.content > div.item > img {
     display:block;
     margin: 0px 0px 0px 0px;
-    /* margin: 0 auto; */
     padding: 0px;
     max-width:100%;
 }
@@ -41,4 +44,29 @@ div.content > div.item > img {
     position: absolute;
     bottom: 0;
     left: 0;
+}
+
+/** sentiment emojis */
+#sentiment-emoji-wrap{
+    width: 100%;
+    position: absolute;
+    top:0;
+    background-color: #00000036;
+}
+
+#sentiment-emoji-wrap > div.inner{
+    margin-left: 1vw;
+    margin-bottom: 1vw;
+    font-size: 5.56vw;
+    margin-top: 0.25vw;
+}
+#sentiment-emoji-wrap > div.inner > span.sentiment-emoji {
+    opacity: 0.15;
+}
+#sentiment-emoji-wrap > div.inner > span.sentiment-emoji.on {
+    opacity: 1.0;
+    transition: opacity 0.2s ease-in;
+}
+#sentiment-emoji-wrap > div.inner > span.sentiment-emoji.off {
+    transition: opacity 2.0s ease-out;
 }

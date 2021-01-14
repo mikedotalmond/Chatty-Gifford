@@ -79,7 +79,7 @@ class ChatClient {
             case "chat":
                 if(this.config.debug) log("processMessage - chat:", message);
                 if(this.messageHandler != null && typeof this.messageHandler == "function") {
-                    this.messageHandler(message);
+                    this.messageHandler(message, context);
                 }
                 break;
             case "whisper":
@@ -90,6 +90,33 @@ class ChatClient {
                 break;
         }
     }
+
+
+    extractEmotes(emotes) {
+        /* id       emote
+        304575697: ["12-25"]
+        304989019: (2) ["0-10", "27-37"]
+        */
+        let orderedIds = [];
+        // build list of all emotes in order of appearance in a message.
+        for (let id in emotes) {
+            const emote = emotes[id];
+            for (let charIndexes in emote) {
+                let emoteIndexes = emote[charIndexes];
+                if (typeof emoteIndexes == "string") {
+                    emoteIndexes = emoteIndexes.split("-");
+                    orderedIds.push({id:id, order:emoteIndexes[0]});
+                }
+            }
+        }
+
+        orderedIds.sort((a,b) => a.order - b.order);
+
+        log("orderedIds:", orderedIds);
+
+        return orderedIds;
+    }
+    
 }
 
 export default ChatClient;
