@@ -10,7 +10,7 @@ Display a wall of GIFs driven by a simple Twitch live chat sentiment analysis an
 ### Getting started
 * Download or clone the repo. 
 * In `/dist/` rename `config.default.js` to `config.js` and follow the instructions there to finish setting things up. 
-* If you only want to display a single GIF at a time, set both the `displayColumns` and `displayCount` config values to `1` - GIFs will be centred in the output window and sized to fit the space vertically, while maintaining their aspect-ratio.
+* If you only want to display a single GIF at a time, set both the `displayCount` config value to `1` - GIFs will be centred in the output window and sized to fit the space vertically, while maintaining their aspect-ratio.
 * Open dist/index.html in a browser or assign as a browser-source in OBS etc.
 
 
