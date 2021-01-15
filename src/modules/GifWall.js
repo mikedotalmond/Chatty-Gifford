@@ -14,33 +14,33 @@ class GifWall {
 
         this.lastGifTime = 0;
         this.pendingItem = 0;
+        this.pendingRemoval = 0;
         this.itemPool = [];
+        this.loadPool = [];
+        this.loadMap = {};
 
         // override config values with querysting parameters if present
         if (urlParams.has("gifs.displayColumns")) config.displayColumns = parseInt(urlParams.get('gifs.gifColumns'), 10);
         if (urlParams.has("gifs.displayCount")) config.displayCount = parseInt(urlParams.get('gifs.displayCount'), 10);
+        if (urlParams.has("gifs.transitionDuration")) config.transitionDuration = parseInt(urlParams.get('gifs.transitionDuration'), 10);
         if (urlParams.has("gifs.searchSize")) config.searchSize = parseInt(urlParams.get('gifs.searchSize'), 10);
         if (urlParams.has("gifs.giphy_rating")) config.giphy_rating = urlParams.get('gifs.giphy_rating');
         if (urlParams.has("gifs.giphy_apiKey")) config.giphy_apiKey = urlParams.get('gifs.giphy_apiKey');
 
         this.singleGIFDisplay = config.displayCount == 1;
         if (this.singleGIFDisplay) config.displayColumns = 1;
-
         this.config = config;
-        this.gifSearch = new GiphySearch(config);
 
-        // set column width
+        this.gifContainer = document.getElementById("gif-container");
         document.querySelector('.grid-sizer').style.width = this.getColumnWidth();
 
-        /**
-         * use masonry to lay out the grid of items
-         */
-        this.gifContainer = document.getElementById("gif-container");
         this.msnry = new Masonry(this.gifContainer, {
             itemSelector: '.item',
             columnWidth: '.grid-sizer',
-            transitionDuration: 100
+            transitionDuration: this.config.transitionDuration
         });
+
+        this.gifSearch = new GiphySearch(this.config);
     }
 
 
@@ -51,15 +51,20 @@ class GifWall {
             query: query,
         };
 
-        // rate limit if needed
-        if (this.config.minimumDisplayTime <= 0 || (now() - this.lastGifTime >= this.config.minimumDisplayTime * 1000)) {
-            this.lastGifTime = now();
-            clearTimeout(this.pendingItem);
-            this.fetchGIF(item).then(data => this.gotGIF(data));
+        // rate limit calls to api
+        // keep most recent as pending if requests are too fast, 
+        // don't bother keeping a long queue
+        
+        const dt = now() - this.lastGifTime;
+        this.lastGifTime = now();
+        clearTimeout(this.pendingItem);
+        if (this.config.minimumDisplayTime <= 0 || (dt >= this.config.minimumDisplayTime * 1000)) {
+            this.fetchGIF(item).then(data => this.gotGIFData(data));
         } else {
+            log("too fast, set as pending")
             this.pendingItem = setTimeout(
-                () => this.fetchGIF(item).then(data => this.gotGIF(data)),
-                this.config.minimumDisplayTime
+                () => this.fetchGIF(item).then(data => this.gotGIFData(data)),
+                dt
             );
         }
     }
@@ -106,12 +111,8 @@ class GifWall {
         this.itemPool.push(item);
 
         if (this.itemPool.length > this.config.displayCount) {
-            // too many? removed oldest item.
-            const removed = this.itemPool.shift();
-            const el = document.getElementById(removed.id);
-            this.gifContainer.removeChild(el);
-            this.msnry.remove(el);
-            this.msnry.layout();
+            // too many? mark oldest item(s) for removal - which will happen once this item has been loaded+displayed
+            this.pendingRemoval++;
         }
 
         return {
@@ -128,7 +129,7 @@ class GifWall {
      * Gif search retuned result(s)
      * @param {*} data 
      */
-    gotGIF(data) {
+    gotGIFData(data) {
 
         if (!data.ok) {
             log("removing failed item", data.id);
@@ -137,38 +138,71 @@ class GifWall {
             return;
         }
 
-        const img = this.createImageItem(data);
-        img.style.opacity = 0;
+        this.createImageItem(data, (imgWrap) => {
+            // image loaded
+            this.loadPool = this.loadPool.filter(value => value != imgWrap.id);
+            delete this.loadMap[imgWrap.id];
 
-        // gifContainer.appendChild(img);
-        this.gifContainer.insertBefore(img, this.gifContainer.firstChild);
+            this.gifContainer.insertBefore(imgWrap, this.gifContainer.firstChild);
 
-        // if only showing one, fill background of container with repeating version of the loaded gif
-        this.gifContainer.style.setProperty("background-image", this.singleGIFDisplay ? `url("${data.url}")` : "unset");
-
-        setTimeout(() => {
-            this.msnry.prepended(img);
+            this.msnry.prepended(imgWrap);
             this.msnry.layout();
-            img.style.opacity = 1;
-        }, 200); // when using prepend it seems we to need a small delay for the layout update to register properly in masonry
+
+            imgWrap.style.opacity = 1;
+
+            // if only showing one, fill background of container with repeating version of the loaded gif
+            this.gifContainer.style.setProperty("background-image", this.singleGIFDisplay ? `url("${data.url}")` : "unset");
+
+            // any items to remove? do so after the `in` transition
+            clearTimeout(this.qwertyuiop);
+            this.qwertyuiop = setTimeout(() => {
+                this.removePending();
+            }, this.config.transitionDuration);
+        });
     }
 
+
+    removePending() {
+
+        while (this.pendingRemoval > 0) {
+
+            log("removePending", this.pendingRemoval);
+
+            this.pendingRemoval--;
+            const removed = this.itemPool.shift();
+
+            if (this.loadPool.indexOf(removed.id) > -1) {
+                log("remove/cancel an image that is still loading...", this.loadMap[removed.id]);
+                this.loadMap[removed.id].onload = null;
+                this.loadMap[removed.id].src = "";
+                delete this.loadMap[removed.id];
+            } else {
+                log("remove existing images");
+                const el = document.getElementById(removed.id);
+                this.gifContainer.removeChild(el);
+                this.msnry.remove(el);
+            }
+        }
+
+        this.msnry.layout();
+    }
 
 
     /**
      * create dom elements to display a new gif in the grid
      */
-    createImageItem(data) {
+    createImageItem(data, onLoad) {
 
         const { id, url } = data;
         const aspect = parseFloat(data.width) / parseFloat(data.height);
 
         const wrap = document.createElement('div');
         wrap.classList.add("item");
+        wrap.style.opacity = 0;
         wrap.id = id;
 
         const img = new Image();
-        img.src = url;
+        wrap.appendChild(img);
 
         if (this.config.displayColumns == 1) {
             // and set height to fill the available area, 
@@ -176,7 +210,7 @@ class GifWall {
             const newWidth = newHeight * aspect;
 
             // centre output if only 1 column
-            wrap.style.width = this.getColumnWidth();
+            wrap.style.width = '100%';
             img.style.margin = "0 auto";
             img.style.height = `${window.innerHeight / this.config.displayCount}px`;
 
@@ -186,9 +220,10 @@ class GifWall {
             img.style.margin = (newWidth < window.innerWidth) ? "0 auto" : `0 ${(window.innerWidth - newWidth) / 2}px`;
         }
 
-        wrap.appendChild(img);
-
-        return wrap;
+        img.onload = () => onLoad(wrap);
+        this.loadPool.push(id);
+        this.loadMap[id] = img;
+        img.src = url; // start loading...
     }
 
 
