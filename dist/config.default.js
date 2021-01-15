@@ -40,6 +40,9 @@ window.sentimentWall = {
       // set to 0 (zero) to disable and just load everything as fast as possible
       minimumDisplayTime:2.5,
 
+      // time taken to transition when adding/removing gifs
+      transitionDuration:200, // milliseconds
+
       // giphy specific 
       giphy_rating: "pg", // keeping results cleanish, see: https://developers.giphy.com/docs/optional-settings#rating
       giphy_apiKey: "your-api-key-here", // put your giphy api key here - but DON'T then commit this file to version control
