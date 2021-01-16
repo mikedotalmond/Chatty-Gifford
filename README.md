@@ -20,7 +20,7 @@ Display a wall of GIFs driven by a simple Twitch live chat sentiment analysis an
 
 
 For faster config changes (or, for example, to run multiple different configs in different windows) any of the config key:value pairs can be overridden via the querystring, like...
-* index.html?channel=myFavouriteStreamer&giphy_rating=pg13
+* index.html?channel=myFavouriteStreamer&gifs.giphy_rating=pg13
 
 
 ### Build from source
