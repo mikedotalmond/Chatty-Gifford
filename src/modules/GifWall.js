@@ -61,7 +61,6 @@ class GifWall {
         if (this.config.minimumDisplayTime <= 0 || (dt >= this.config.minimumDisplayTime * 1000)) {
             this.fetchGIF(item).then(data => this.gotGIFData(data));
         } else {
-            log("too fast, set as pending")
             this.pendingItem = setTimeout(
                 () => this.fetchGIF(item).then(data => this.gotGIFData(data)),
                 dt
@@ -166,18 +165,14 @@ class GifWall {
 
         while (this.pendingRemoval > 0) {
 
-            log("removePending", this.pendingRemoval);
-
             this.pendingRemoval--;
             const removed = this.itemPool.shift();
 
             if (this.loadPool.indexOf(removed.id) > -1) {
-                log("remove/cancel an image that is still loading...", this.loadMap[removed.id]);
                 this.loadMap[removed.id].onload = null;
                 this.loadMap[removed.id].src = "";
                 delete this.loadMap[removed.id];
             } else {
-                log("remove existing images");
                 const el = document.getElementById(removed.id);
                 this.gifContainer.removeChild(el);
                 this.msnry.remove(el);
