@@ -54,7 +54,7 @@ class GifWall {
         // rate limit calls to api
         // keep most recent as pending if requests are too fast, 
         // don't bother keeping a long queue
-        
+
         const dt = now() - this.lastGifTime;
         this.lastGifTime = now();
         clearTimeout(this.pendingItem);
@@ -194,7 +194,6 @@ class GifWall {
     createImageItem(data, onLoad) {
 
         const { id, url } = data;
-        const aspect = parseFloat(data.width) / parseFloat(data.height);
 
         const wrap = document.createElement('div');
         wrap.classList.add("item");
@@ -204,20 +203,32 @@ class GifWall {
         const img = new Image();
         wrap.appendChild(img);
 
+        // and set height to fill the available area
         if (this.config.displayColumns == 1) {
-            // and set height to fill the available area, 
-            const newHeight = window.innerHeight / this.config.displayCount;
-            const newWidth = newHeight * aspect;
+            let newHeight, newWidth;
 
-            // centre output if only 1 column
-            wrap.style.width = '100%';
-            img.style.margin = "0 auto";
-            img.style.height = `${window.innerHeight / this.config.displayCount}px`;
+            const imgRatio = parseFloat(data.width) / parseFloat(data.height);
+            const displayRatio = window.innerWidth / window.innerHeight;
+    
+            wrap.style.width = `${ window.innerWidth}px`;
+            wrap.style.height = `${ window.innerHeight}px`;
+            img.style.position = 'relative';
 
-            // and maintain aspect ratio if increasing height
-            img.style.setProperty("min-width", `${newWidth}px`);
-            // then - images wider than the window will be centrally cropped, narrower ones will centre in the available space
-            img.style.margin = (newWidth < window.innerWidth) ? "0 auto" : `0 ${(window.innerWidth - newWidth) / 2}px`;
+            if (imgRatio < displayRatio) { 
+                // window is wider ratio than gif - fit gif to height
+                newHeight = window.innerHeight / this.config.displayCount;
+                newWidth = newHeight * imgRatio;
+                img.style.left = `${(window.innerWidth - newWidth) / 2}px`;
+
+            } else {
+                // window is taller than gif - fit gif to width
+                newWidth = window.innerWidth;
+                newHeight = newWidth / imgRatio;
+                img.style.top = `${(window.innerHeight - newHeight) / 2}px`;
+            }
+
+            img.style.width = `${newWidth}px`;
+            img.style.height = `${newHeight}px`;
         }
 
         img.onload = () => onLoad(wrap);
