@@ -16,6 +16,8 @@ div.gifContent {
     background-position: 50%;
     background-size: cover;
     background-image: unset;
+    background-blend-mode: multiply;
+    background-color: #999;
 }
 
 div.gifContent > div.item { 
