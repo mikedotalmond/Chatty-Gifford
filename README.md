@@ -19,7 +19,7 @@ A test [Twitch Stream](https://www.twitch.tv/videos/856384544) with a 5-column g
 #### 5-colunmn wall
 ![example](https://mikedotalmond.co.uk/lab/giffingsentimental/gifwall.jpg)
 
-#### Single item with a portrait ratio image fitting to a landscape ratio window area.
+#### Single item with a portrait image fitting to a landscape window area.
 ![single-item-example](https://mikedotalmond.co.uk/lab/giffingsentimental/singlegif.png)
 
 
