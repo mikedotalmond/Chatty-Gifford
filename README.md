@@ -4,7 +4,12 @@ Display a wall of GIFs driven by a simple Twitch live chat sentiment analysis an
 
 [Stream Example](https://www.twitch.tv/videos/856384544)
 
+
+#### Wall
 ![example](https://mikedotalmond.co.uk/lab/giffingsentimental/gifwall.jpg)
+
+#### Single
+![single-item-example](https://mikedotalmond.co.uk/lab/giffingsentimental/singlegif.png)
 
 
 ### Getting started
