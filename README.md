@@ -5,10 +5,10 @@ Display a wall of GIFs driven by a simple Twitch live chat sentiment analysis an
 [Stream Example](https://www.twitch.tv/videos/856384544)
 
 
-#### Wall
+#### 5-colunmn wall
 ![example](https://mikedotalmond.co.uk/lab/giffingsentimental/gifwall.jpg)
 
-#### Single
+#### Single item
 ![single-item-example](https://mikedotalmond.co.uk/lab/giffingsentimental/singlegif.png)
 
 
