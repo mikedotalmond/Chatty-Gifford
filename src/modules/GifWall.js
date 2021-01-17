@@ -140,20 +140,20 @@ class GifWall {
             return;
         }
 
-        this.createImageItem(data, imgWrap => { // image loaded
+        this.createImageItem(data, container => { // image loaded
 
-            this.loadPool = this.loadPool.filter(value => value != imgWrap.id);
-            delete this.loadMap[imgWrap.id];
+            this.loadPool = this.loadPool.filter(value => value != container.id);
+            delete this.loadMap[container.id];
 
-            this.gifContainer.insertBefore(imgWrap, this.gifContainer.firstChild);
+            this.gifContainer.insertBefore(container, this.gifContainer.firstChild);
 
-            this.msnry.prepended(imgWrap);
+            this.msnry.prepended(container);
             this.msnry.layout();
 
-            imgWrap.style.opacity = 1;
+            container.style.opacity = 1;
 
             // if only showing one, fill background of container with repeating version of the loaded gif
-            imgWrap.style.setProperty("background-image", this.singleGIFDisplay ? `url("${data.url}")` : "unset");
+            container.style.setProperty("background-image", this.singleGIFDisplay ? `url("${data.url}")` : "unset");
 
             // any items to remove? do so after the `in` transition
             clearTimeout(this.removeItemTimeout);
