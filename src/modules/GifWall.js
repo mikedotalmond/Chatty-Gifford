@@ -28,7 +28,10 @@ class GifWall {
         if (urlParams.has("gifs.giphy_apiKey")) config.giphy_apiKey = urlParams.get('gifs.giphy_apiKey');
 
         this.singleGIFDisplay = config.displayCount == 1;
-        if (this.singleGIFDisplay) config.displayColumns = 1;
+        if (this.singleGIFDisplay) {
+            config.displayColumns = 1;
+            window.addEventListener("resize", () => this.layoutSingleImage(document.querySelector('div.item')));
+        }
         this.config = config;
 
         this.gifContainer = document.getElementById("gif-container");
@@ -137,8 +140,8 @@ class GifWall {
             return;
         }
 
-        this.createImageItem(data, (imgWrap) => {
-            // image loaded
+        this.createImageItem(data, imgWrap => { // image loaded
+
             this.loadPool = this.loadPool.filter(value => value != imgWrap.id);
             delete this.loadMap[imgWrap.id];
 
@@ -150,13 +153,11 @@ class GifWall {
             imgWrap.style.opacity = 1;
 
             // if only showing one, fill background of container with repeating version of the loaded gif
-            this.gifContainer.style.setProperty("background-image", this.singleGIFDisplay ? `url("${data.url}")` : "unset");
+            imgWrap.style.setProperty("background-image", this.singleGIFDisplay ? `url("${data.url}")` : "unset");
 
             // any items to remove? do so after the `in` transition
-            clearTimeout(this.qwertyuiop);
-            this.qwertyuiop = setTimeout(() => {
-                this.removePending();
-            }, this.config.transitionDuration);
+            clearTimeout(this.removeItemTimeout);
+            this.removeItemTimeout = setTimeout(() => this.removePending(), this.config.transitionDuration);
         });
     }
 
@@ -183,6 +184,35 @@ class GifWall {
     }
 
 
+    layoutSingleImage(container) {
+        if (container == null) return;
+
+        const img = container.firstChild;
+        const imgRatio = parseFloat(container.dataset.width) / parseFloat(container.dataset.height);
+        const displayRatio = window.innerWidth / window.innerHeight;
+
+        container.style.width = `${window.innerWidth}px`;
+        container.style.height = `${window.innerHeight}px`;
+        img.style.position = 'relative';
+
+        let newHeight, newWidth;
+
+        if (imgRatio < displayRatio) {
+            // window is wider ratio than gif - fit gif to height
+            newHeight = window.innerHeight / this.config.displayCount;
+            newWidth = newHeight * imgRatio;
+            img.style.left = `${(window.innerWidth - newWidth) / 2}px`;
+        } else {
+            // window is taller than gif - fit gif to width
+            newWidth = window.innerWidth;
+            newHeight = newWidth / imgRatio;
+            img.style.top = `${(window.innerHeight - newHeight) / 2}px`;
+        }
+        img.style.width = `${newWidth}px`;
+        img.style.height = `${newHeight}px`;
+    }
+
+
     /**
      * create dom elements to display a new gif in the grid
      */
@@ -190,43 +220,22 @@ class GifWall {
 
         const { id, url } = data;
 
-        const wrap = document.createElement('div');
-        wrap.classList.add("item");
-        wrap.style.opacity = 0;
-        wrap.id = id;
+        const container = document.createElement('div');
+        container.classList.add("item");
+        container.id = id;
+        container.style.opacity = 0;
+        container.dataset.width = data.width;
+        container.dataset.height = data.height;
 
         const img = new Image();
-        wrap.appendChild(img);
+        container.appendChild(img);
 
         // and set height to fill the available area
         if (this.config.displayColumns == 1) {
-            let newHeight, newWidth;
-
-            const imgRatio = parseFloat(data.width) / parseFloat(data.height);
-            const displayRatio = window.innerWidth / window.innerHeight;
-    
-            wrap.style.width = `${ window.innerWidth}px`;
-            wrap.style.height = `${ window.innerHeight}px`;
-            img.style.position = 'relative';
-
-            if (imgRatio < displayRatio) { 
-                // window is wider ratio than gif - fit gif to height
-                newHeight = window.innerHeight / this.config.displayCount;
-                newWidth = newHeight * imgRatio;
-                img.style.left = `${(window.innerWidth - newWidth) / 2}px`;
-
-            } else {
-                // window is taller than gif - fit gif to width
-                newWidth = window.innerWidth;
-                newHeight = newWidth / imgRatio;
-                img.style.top = `${(window.innerHeight - newHeight) / 2}px`;
-            }
-
-            img.style.width = `${newWidth}px`;
-            img.style.height = `${newHeight}px`;
+            this.layoutSingleImage(container);
         }
 
-        img.onload = () => onLoad(wrap);
+        img.onload = () => onLoad(container);
         this.loadPool.push(id);
         this.loadMap[id] = img;
         img.src = url; // start loading...
