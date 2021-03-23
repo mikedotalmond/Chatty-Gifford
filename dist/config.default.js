@@ -1,12 +1,3 @@
-/**
- * Make a copy of this file and rename it to `config.js`
- * 
- * Then replace the giphy_apiKey value with your own giphy API key (signup is free)
- * - https://support.giphy.com/hc/en-us/articles/360020283431-Request-A-GIPHY-API-Key
- * - https://developers.giphy.com/
- * 
- * * Set `channel` value to the twitch channel you want to use
- */
 window.sentimentWall = {
 
   config: {
@@ -43,9 +34,16 @@ window.sentimentWall = {
       // time taken to transition when adding/removing gifs
       transitionDuration:200, // milliseconds
 
+
+      gifAPIProvider:"tenor", // options are "giphy", "tenor" - configure below as required
+
+      // tenor specifics
+      tenor_contentfilter: "high", // keeping results clean, see: https://tenor.com/gifapi/documentation#contentfilter
+      tenor_apiKey: "-your-api-key-here-", // tenor api key
+      
       // giphy specific 
-      giphy_rating: "pg", // keeping results cleanish, see: https://developers.giphy.com/docs/optional-settings#rating
-      giphy_apiKey: "your-api-key-here", // put your giphy api key here - but DON'T then commit this file to version control
+      giphy_rating: "g", // keeping results clean, see: https://developers.giphy.com/docs/optional-settings#rating
+      giphy_apiKey: "-your-api-key-here-", // put your giphy api key here - but DON'T then commit this file to version control
     },
 
 

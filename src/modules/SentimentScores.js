@@ -23,7 +23,7 @@ class SentimentScores {
         let text = doc.text('reduced');
         let words = text.split(" ").filter(filterUnique);
 
-        if (words.length > 6) {
+        if (words.length > 8) {
             // lots of words? try to just pick some salient details so that the search passed to the giphy api is a bit more focussed.
             doc = nlp(words.join(" "));
             const topics = doc.topics().out('array');
@@ -31,9 +31,9 @@ class SentimentScores {
             const nouns = doc.nouns().out('array');
             const sentiments = this.match(words);
             words = sentiments.concat(topics, nouns, verbs).filter(filterUnique);
-            if (words.length > 6) {
+            if (words.length > 8) {
                 words.sort(randomSort); // shuffle for a bit of variety
-                words.length = 6; // then truncate
+                words.length = 8; // then truncate
             }
 
             text = words.join(" ");

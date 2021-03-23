@@ -6,7 +6,8 @@ import Masonry from 'masonry-layout';
 import log from './log.js';
 import { genRandomId, randomSort, now } from './Utils';
 
-import GiphySearch from "./GiphySearch.js";
+import GiphySearch from "./gif/GiphySearch.js";
+import TenorSearch from "./gif/TenorSearch.js";
 
 class GifWall {
 
@@ -24,8 +25,12 @@ class GifWall {
         if (urlParams.has("gifs.displayCount")) config.displayCount = parseInt(urlParams.get('gifs.displayCount'), 10);
         if (urlParams.has("gifs.transitionDuration")) config.transitionDuration = parseInt(urlParams.get('gifs.transitionDuration'), 10);
         if (urlParams.has("gifs.searchSize")) config.searchSize = parseInt(urlParams.get('gifs.searchSize'), 10);
-        if (urlParams.has("gifs.giphy_rating")) config.giphy_rating = urlParams.get('gifs.giphy_rating');
+
         if (urlParams.has("gifs.giphy_apiKey")) config.giphy_apiKey = urlParams.get('gifs.giphy_apiKey');
+        if (urlParams.has("gifs.giphy_rating")) config.giphy_rating = urlParams.get('gifs.giphy_rating');
+
+        if (urlParams.has("gifs.tenor_apiKey")) config.tenor_apiKey = urlParams.get('gifs.tenor_apiKey');
+        if (urlParams.has("gifs.tenor_contentfilter")) config.tenor_rating = urlParams.get('gifs.tenor_contentfilter');
 
         this.singleGIFDisplay = config.displayCount == 1;
         if (this.singleGIFDisplay) {
@@ -43,7 +48,17 @@ class GifWall {
             transitionDuration: this.config.transitionDuration
         });
 
-        this.gifSearch = new GiphySearch(this.config);
+        switch (config.gifAPIProvider) {
+            case "tenor":
+                this.gifSearch = new TenorSearch(config);
+                break;
+            case "giphy":
+                this.gifSearch = new GiphySearch(config);
+                break;
+            default:
+                throw `Unsupported API name, options are "tenor", "giphy"`;
+        }
+
     }
 
 
@@ -80,18 +95,18 @@ class GifWall {
 
         let { query, id } = item;
 
-        const gData = await this.gifSearch.query(query, Math.max(1, this.config.searchSize), 0, this.config.giphy_rating);
-        if (!gData) return { ok: false, id: id };
+        const gifData = await this.gifSearch.query(query, Math.max(1, this.config.searchSize));
+        if (!gifData) return { ok: false, id: id };
 
-        gData.sort(randomSort); // randomise order of results 
+        gifData.sort(randomSort); // randomise order of results 
 
         let imageData = null;
 
-        gData.every(data => {
-            const isUnique = this.itemPool.every(item => item.originalURL !== data.images.original.url);
+        gifData.every(data => {
+            const isUnique = this.itemPool.every(item => item.url !== data.url);
             // if image does not exist in current items, keep it
             if (isUnique) {
-                imageData = data.images.original;
+                imageData = data;
                 return false;
             }
             return true; // keep checking
@@ -101,29 +116,18 @@ class GifWall {
             log("item already exists, no new gifs to show for this query.");
             return { ok: false, id: id };
         }
-
-        // Seems that Giphy no longer just returns a gif url, it's an html page with a gif/webm/mp4 embed. 
-        // We only want the source gif url...
-        const url = imageData.url;
-        let assetId = url.substr(0, url.indexOf("/giphy.gif?"));
-        assetId = assetId.substring(assetId.lastIndexOf("/") + 1);
-        const gifURL = `https://i.giphy.com/media/${assetId}/giphy.gif`
-
-        item.originalURL = url;
-        this.itemPool.push(item);
+        
+        imageData.ok = true;
+        imageData.id = id;
+        imageData.query = query;
+        this.itemPool.push(imageData);
 
         if (this.itemPool.length > this.config.displayCount) {
             // too many? mark oldest item(s) for removal - which will happen once this item has been loaded+displayed
             this.pendingRemoval++;
         }
 
-        return {
-            ok: true,
-            id: id,
-            url: gifURL,
-            width: imageData.width,
-            height: imageData.height,
-        };
+        return imageData;
     }
 
 
@@ -140,7 +144,7 @@ class GifWall {
             return;
         }
 
-        this.createImageItem(data, container => { // image loaded
+        this.createImageItem(data, container => { // image loaded callback
 
             this.loadPool = this.loadPool.filter(value => value != container.id);
             delete this.loadMap[container.id];
