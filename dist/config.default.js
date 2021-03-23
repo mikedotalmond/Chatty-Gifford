@@ -4,7 +4,7 @@ window.sentimentWall = {
 
     // the twitch channel to observe...
     // can be anyone, twitch chats are all public and require no authentication to read from.
-    channel: '1030jh', // mikedotalmond, 1030jh, limmy, etc...
+    channel: 'mikedotalmond', // 1030jh, limmy, rosco, shelia, dando, etc...
 
     gifs: {
       // enable/disable the gif-wall display
@@ -41,7 +41,7 @@ window.sentimentWall = {
       tenor_contentfilter: "high", // keeping results clean, see: https://tenor.com/gifapi/documentation#contentfilter
       tenor_apiKey: "-your-api-key-here-", // tenor api key
       
-      // giphy specific 
+      // giphy specifics
       giphy_rating: "g", // keeping results clean, see: https://developers.giphy.com/docs/optional-settings#rating
       giphy_apiKey: "-your-api-key-here-", // put your giphy api key here - but DON'T then commit this file to version control
     },
