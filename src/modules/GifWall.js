@@ -31,6 +31,8 @@ class GifWall {
 
         if (urlParams.has("gifs.tenor_apiKey")) config.tenor_apiKey = urlParams.get('gifs.tenor_apiKey');
         if (urlParams.has("gifs.tenor_contentfilter")) config.tenor_rating = urlParams.get('gifs.tenor_contentfilter');
+        
+        if (urlParams.has("gifs.gifAPIProvider")) config.gifAPIProvider = urlParams.get('gifs.gifAPIProvider');
 
         this.singleGIFDisplay = config.displayCount == 1;
         if (this.singleGIFDisplay) {
