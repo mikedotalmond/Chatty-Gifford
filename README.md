@@ -14,7 +14,7 @@ For faster config changes (or, for example, to run multiple different configs in
 
 ## Examples
 
-A test [Twitch Stream](https://www.twitch.tv/videos/856384544) with a 5-column gif wall reacting to the an active channel's chat.
+A test [Twitch Stream](https://www.twitch.tv/videos/856384544) with a 5-column gif wall reacting to an active channel's chat.
 
 #### Single item with a portrait image fitting to a landscape window area (default mode)
 ![single-item-example](https://mikedotalmond.co.uk/lab/giffingsentimental/singlegif.png)
