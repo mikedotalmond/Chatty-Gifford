@@ -8,42 +8,42 @@ import GifSearch from './GifSearch.js'
 class TenorSearch extends GifSearch {
 
   constructor(config) {
-    super(config, "https://g.tenor.com/v1/search?");
+    super(config, "https://tenor.googleapis.com/v2/search?");
     this.searchParameters.set("key", config.tenor_apiKey);
     this.searchParameters.set("media_filter", "minimal");
   }
 
 
-  async query(query, limit = 25, pos = 0, contentfilter = this.config.tenor_contentfilter, locale = "en_GB") {
+  async query(query, limit = 25, pos = 0, contentfilter = this.config.tenor_contentfilter, locale = "en_GB", country = "GB") {
 
     this.searchParameters.set("q", query);
     this.searchParameters.set("contentfilter", contentfilter);
     this.searchParameters.set("limit", limit);
     this.searchParameters.set("pos", pos);
     this.searchParameters.set("locale", locale);
-    
+    this.searchParameters.set("country", country);
+
     const data = await this.queryAPI();
     return this.processResponse(data);
   }
-  
 
-  processResponse(data){
 
-    if(data == null) return null;
-    if(data.results == null || data.results.length == 0) return null;
+  processResponse(data) {
+    if (data == null) return null;
+    if (data.results == null || data.results.length == 0) return null;
 
     const count = data.results.length;
 
     const items = [];
-    data.results.forEach((v,i)=>{
+    data.results.forEach((v, i) => {
       items.push({
-        url   : v.media[0].gif.url,
-        width : v.media[0].gif.dims[0],
-        height: v.media[0].gif.dims[1],
+        url: v.media_formats.gif.url,
+        width: v.media_formats.gif.dims[0],
+        height: v.media_formats.gif.dims[1],
       });
     });
 
-    if(this.config.debug){
+    if (this.config.debug) {
       log(`Processed ${items.length} gif items.`, items);
     }
 
