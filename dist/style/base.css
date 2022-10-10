@@ -14,25 +14,26 @@ div.gifContent {
     position: absolute;
 }
 
-div.gifContent > div.item { 
+div.gifContent>div.item {
     margin: 0px 0px 0px 0px;
     padding: 0px;
     float: left;
     width: 20%;
-    
+
     background-repeat: repeat;
     background-position: 50%;
     background-size: cover;
     background-image: unset;
     background-blend-mode: multiply;
-    background-color: #999;
+    background-color: #555;
 }
 
-div.gifContent > div.item > img {
-    display:block;
+
+div.gifContent>div.item>img {
+    display: block;
     margin: 0px 0px 0px 0px;
     padding: 0px;
-    max-width:100%;
+    max-width: 100%;
 }
 
 #poweredBy {
@@ -46,23 +47,26 @@ div.gifContent > div.item > img {
 #sentiment-emoji-wrap {
     width: 100%;
     position: absolute;
-    top:0;
+    top: 0;
     background-color: #00000036;
 }
 
-#sentiment-emoji-wrap > div.inner{
+#sentiment-emoji-wrap>div.inner {
     margin-left: 1vw;
     margin-bottom: 1vw;
     font-size: 5.56vw;
     margin-top: 0.25vw;
 }
-#sentiment-emoji-wrap > div.inner > span.sentiment-emoji {
+
+#sentiment-emoji-wrap>div.inner>span.sentiment-emoji {
     opacity: 0.15;
 }
-#sentiment-emoji-wrap > div.inner > span.sentiment-emoji.on {
+
+#sentiment-emoji-wrap>div.inner>span.sentiment-emoji.on {
     opacity: 1.0;
     transition: opacity 0.2s ease-in;
 }
-#sentiment-emoji-wrap > div.inner > span.sentiment-emoji.off {
+
+#sentiment-emoji-wrap>div.inner>span.sentiment-emoji.off {
     transition: opacity 2.0s ease-out;
 }
