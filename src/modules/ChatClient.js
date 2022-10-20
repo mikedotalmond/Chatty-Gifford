@@ -11,7 +11,7 @@ class ChatClient {
 
     constructor(config, messageHandler) {
 
-        this.config=config;
+        this.config = config;
         this.messageHandler = messageHandler;
 
         this.disabled = false;
@@ -40,7 +40,7 @@ class ChatClient {
     onMessage(target, context, msg, self) {
 
         if (self) return;
-        if (this.config.debug) log("onMessage", target, context, msg, self);
+        log("onMessage", target, context, msg, self);
 
         const message = msg.trim();
         const isCommand = message.charAt(0) === "!";
@@ -77,8 +77,8 @@ class ChatClient {
         // Handle different message types..
         switch (messageType) {
             case "chat":
-                if(this.config.debug) log("processMessage - chat:", message);
-                if(this.messageHandler != null && typeof this.messageHandler == "function") {
+                log("processMessage - chat:", message);
+                if (this.messageHandler != null && typeof this.messageHandler == "function") {
                     this.messageHandler(message, context);
                 }
                 break;
@@ -105,18 +105,18 @@ class ChatClient {
                 let emoteIndexes = emote[charIndexes];
                 if (typeof emoteIndexes == "string") {
                     emoteIndexes = emoteIndexes.split("-");
-                    orderedIds.push({id:id, order:emoteIndexes[0]});
+                    orderedIds.push({ id: id, order: emoteIndexes[0] });
                 }
             }
         }
 
-        orderedIds.sort((a,b) => a.order - b.order);
+        orderedIds.sort((a, b) => a.order - b.order);
 
         log("orderedIds:", orderedIds);
 
         return orderedIds;
     }
-    
+
 }
 
 export default ChatClient;

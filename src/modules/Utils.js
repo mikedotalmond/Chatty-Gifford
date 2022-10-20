@@ -6,11 +6,12 @@ const now = () => Date.now();
 const filterUnique = (value, index, self) => self.indexOf(value) === index;
 const stripUsernames = str => str.replace(/@[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*/gi, "");
 
+
 export {
     rndInt,
     genRandomId,
     randomSort,
     filterUnique,
     stripUsernames,
-    now    
+    now
 }

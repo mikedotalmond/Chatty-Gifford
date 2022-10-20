@@ -1,7 +1,7 @@
 {
-  "name": "giffing-wall-sentimental",
+  "name": "chatty-gifford",
   "version": "1.0.0",
-  "description": "Display a wall of GIFs driven by a simple Twitch live chat sentiment analysis and the Giphy search API.",
+  "description": "Display GIFs driven by live Twitch chat messages and GIF search APIs.",
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
